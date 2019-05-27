@@ -47,7 +47,7 @@ local function SnakeBody(startX, startY, direction)
       self.x = self.x + 1
     end
 
-    setCoords();
+    self.setCoords();
 
   end
 
