@@ -6,6 +6,9 @@
 cX = display.contentCenterX
 cY = display.contentCenterY
 math.randomseed( os.time() )
+currentDirection = 'left'
+i = 0
+appleCount = 0
 
 local button = display.newRect( 0, 0, 0, 0 )
 button.height = cY * 2; button.width = (cX * 2) + 100
@@ -13,6 +16,8 @@ button.x = -50; button.y = 0
 button.anchorX = 0; button.anchorY = 0
 button.isVisible = false
 button.isHitTestable = true
+
+local score = display.newText( appleCount, -20, 25, nil, 25 )
 
 local function hasCollided( obj1, obj2 )
    if ( obj1 == nil ) then  --make sure the first object exists
@@ -31,33 +36,58 @@ local function hasCollided( obj1, obj2 )
    
 end
 
-local apple = display.newCircle( cX, cY, 16 )
-local snake = display.newRect( cX + 100, cY + 50, 32, 32 )
+local apple = display.newCircle( math.random( 0, 15 ) * 32, math.random( 0, 10 ) * 32, 14 )
+local snake = display.newRect( math.random( 0, 15 ) * 32, math.random( 0, 10 ) * 32, 32, 32 )
 
 local function changeDirection( event )
 	if event.phase == 'moved' then
 		dX = event.x - event.xStart; dY = event.y - event.yStart
 		if dY < 0 and math.abs(dY) > math.abs(dX) then
 			-- upward swipe
-			transition.to( snake, {time=500, y=snake.y - 32})
+			currentDirection = 'up'
 		elseif dY > 0 and math.abs(dY) > math.abs(dX) then
 			-- downward swipe
-			transition.to( snake, {time=500, y=snake.y + 32})
+			currentDirection = 'down'
 		elseif dX < 0 and math.abs(dX) > math.abs(dY) then
 			-- left swipe
-			transition.to( snake, {time=500, x=snake.x - 32})
+			currentDirection = 'left'
 		elseif dX > 0 and math.abs(dX) > math.abs(dY) then
 			-- right swipe
-			transition.to( snake, {time=500, x=snake.x + 32})
+			currentDirection = 'right'
 		end
 	end
 end
 
 local function gameLoop( event )
 	if hasCollided( apple, snake ) then
-		apple.x = math.random( 15 ) * 32
-		apple.y = math.random( 10 ) * 32
-		print('e')
+		transition.to( apple, {time=0, x=math.random( 0, 15 ) * 32, y=math.random( 0, 10 ) * 32} )
+		appleCount = appleCount + 1
+		score.text = appleCount
+	end
+	sX = snake.x; sY = snake.y
+	if i % 8 == 0 then
+		if currentDirection == 'left' then
+			snake.x = snake.x - 32
+		elseif currentDirection == 'right' then
+			snake.x = snake.x + 32
+		elseif currentDirection == 'down' then
+			snake.y = snake.y + 32
+		elseif currentDirection == 'up' then
+			snake.y = snake.y - 32
+		end
+	end
+	i = i + 1
+	if snake.x < 0 then
+		snake.x = 0
+	end
+	if snake.x > 480 then
+		snake.x = 480
+	end
+	if snake.y < 0 then
+		snake.y = 0
+	end
+	if snake.y > 320 then
+		snake.y = 320
 	end
 end
 
