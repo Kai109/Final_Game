@@ -7,6 +7,9 @@
 local GRID_COLS = 15
 local GRID_ROWS = 10
 
+local TILE_WIDTH  = display.contentWidth / GRID_COLS
+local TILE_HEIGHT = display.contentHeight / GRID_ROWS
+
 local UP = 0
 local RIGHT = 1
 local DOWN = 2
@@ -28,7 +31,7 @@ local function SnakeBody(startX, startY, direction)
     direction = direction or RIGHT
   }
 
-  local graphic = display.newRect(self.x * (cW / GRID_COLS), self.y * (cH / GRID_ROWS),
+  local graphic = display.newRect(self.x * TILE_WIDTH, self.y * TILE_HEIGHT,
     cW / GRID_COLS, cH / GRID_ROWS);
   graphic:setFillColor(0, 1, 0);
 
@@ -49,11 +52,11 @@ local function SnakeBody(startX, startY, direction)
   end
 
   function setCoords()
-    graphic.x = self.x * (cW / GRID_COLS)
-    graphic.y = self.y * (cH / GRID_ROWS)
+    graphic.x = self.x * TILE_WIDTH
+    graphic.y = self.y * TILE_HEIGHT
   end
 
-  
+
 
   return self
 end
