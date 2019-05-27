@@ -18,7 +18,7 @@ local LEFT = 3
 local SNAKE_START_X = 8
 local SNAKE_START_Y = 5
 
-local TICK_TIME = 1000;
+local FRAMES_PER_TICK = display.fps / 2;
 
 local cH = display.contentHeight
 local cW = display.contentWidth
@@ -62,12 +62,20 @@ local function SnakeBody(startX, startY, direction)
 end
 
 
+local head = SnakeBody();
 
-local head = SnakeBody(8, 6, UP)
-
-local function execute(event)
-  head.move()
-  timer.performWithDelay(1000, execute);
+local function gameLoop()
+  head.move();
 end
 
-execute();
+
+local frameCounter = 0;
+local function execute()
+  frameCounter = frameCounter + 1;
+  if(frameCounter % FRAMES_PER_TICK == 0) then
+    gameLoop();
+  end
+end
+
+
+Runtime:addEventListener( 'enterFrame', execute )
