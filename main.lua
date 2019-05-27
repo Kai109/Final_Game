@@ -51,7 +51,7 @@ local function SnakeBody(startX, startY, direction)
 
   end
 
-  function setCoords()
+  function self.setCoords()
     graphic.x = self.x * TILE_WIDTH
     graphic.y = self.y * TILE_HEIGHT
   end
