@@ -64,7 +64,6 @@ local function gameLoop( event )
 		appleCount = appleCount + 1
 		score.text = appleCount
 	end
-	sX = snake.x; sY = snake.y
 	if i % 8 == 0 then
 		if currentDirection == 'left' then
 			snake.x = snake.x - 32
