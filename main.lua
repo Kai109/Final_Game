@@ -38,18 +38,21 @@ local function hasCollided( obj1, obj2 )
    if ( obj2 == nil ) then  --make sure the other object exists
       return false
    end
- 
+
    local left = obj1.contentBounds.xMin <= obj2.contentBounds.xMin and obj1.contentBounds.xMax >= obj2.contentBounds.xMin
    local right = obj1.contentBounds.xMin >= obj2.contentBounds.xMin and obj1.contentBounds.xMin <= obj2.contentBounds.xMax
    local up = obj1.contentBounds.yMin <= obj2.contentBounds.yMin and obj1.contentBounds.yMax >= obj2.contentBounds.yMin
    local down = obj1.contentBounds.yMin >= obj2.contentBounds.yMin and obj1.contentBounds.yMin <= obj2.contentBounds.yMax
- 
+
    return (left or right) and (up or down)
-   
+
 end
 
 local apple = display.newCircle( math.random( 0, 15 ) * 32, math.random( 1, 9 ) * 32, 14 )
 local snake = display.newRect( 352, 224, 32, 32 )
+local obstruction = display.newCircle( math.random( 0, 15 ) * 32, math.random( 1, 9 ) * 32, 14 )
+
+obstruction:setFillColor(255, 0, 0)
 
 local function changeDirection( event )
 	if event.phase == 'moved' then
@@ -61,7 +64,7 @@ local function changeDirection( event )
 			end
 		elseif dY > 0 and math.abs(dY) > math.abs(dX) then
 			-- downward swipe
-			if currentDirection ~= 'up' then	
+			if currentDirection ~= 'up' then
 				currentDirection = 'down'
 			end
 		elseif dX < 0 and math.abs(dX) > math.abs(dY) then
@@ -98,13 +101,29 @@ local function reset( event )
 	score.text = appleCount
 	score.isVisible = true
 	snake.isVisible = true
+  obstruction.isVisible = true
 	snake.x = 352; snake.y = 224
+  obstruction.x = math.random( 0, 15 ) * 32
+  obstruction.y = math.random( 1, 9 ) * 32
 	currentDirection = 'left'
+end
+
+local function gameOver()
+  gOverText.isVisible = true
+  scoreText.isVisible = true
+  scoreText.text = 'Score: '..appleCount
+  playAgain.isVisible = true
+  border.isVisible = false
+  apple.isVisible = false
+  score.isVisible = false
+  snake.isVisible = false
+  obstruction.isVisible = false
+  toggleFlag()
 end
 
 local function gameLoop( event )
 	if hasCollided( apple, snake ) then
-		transition.to( apple, {time=0, x=math.random( 0, 15 ) * 32, y=math.random( 1, 9 ) * 32} )
+		transition.to( apple, {time=0, x= math.random( 0, 15 ) * 32, y= math.random( 1, 9 ) * 32} )
 		appleCount = appleCount + 1
 		score.text = appleCount
 	end
@@ -119,20 +138,34 @@ local function gameLoop( event )
 			snake.y = snake.y - 32
 		end
 	end
+
+ -- Move obstruction every 2 ticks
+  if i % 16 == 0 then
+    if(math.abs(snake.x - obstruction.x) > math.abs(snake.y - obstruction.y)) then
+      if(snake.x > obstruction.x) then
+        obstruction.x = obstruction.x + 32
+      else
+        obstruction.x = obstruction.x - 32
+      end
+    else
+      if(snake.y > obstruction.y) then
+        obstruction.y = obstruction.y + 32
+      else
+        obstruction.y = obstruction.y - 32
+      end
+    end
+  end
+
 	i = i + 1
-	
+
 	if snake.x < 0 or snake.x > 480 or snake.y < 32 or snake.y > 288 then
-		gOverText.isVisible = true
-		scoreText.isVisible = true
-		scoreText.text = 'Score: '..appleCount
-		playAgain.isVisible = true
-		border.isVisible = false
-		apple.isVisible = false
-		score.isVisible = false
-		snake.isVisible = false
-		toggleFlag()
+		gameOver()
 	end
-	
+
+  if hasCollided(snake, obstruction) then
+    gameOver()
+  end
+
 end
 
 playAgain:addEventListener( 'touch', reset )
